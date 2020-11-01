@@ -15,12 +15,17 @@
     </ul>
   </form>
   <script>
+    'use strict';
     const cities = [];
 
+    async function fetchData(endpoint) {
+      const res = await fetch(endpoint);
+      const arr = await res.json();
+      cities.push(...arr);
+    }
+
     const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
-    fetch(endpoint)
-      .then(blob => blob.json())
-      .then(json => cities.push(...json))
+    fetchData(endpoint)
       .catch(err => console.log(err.message));
 
     const input = document.querySelector('.search');
@@ -28,22 +33,22 @@
 
     function findMatches(word, cities) {
       const regex = new RegExp(word, 'gi');
-      return cities.filter(city => city.city.match(regex) || city.state.match(regex));
+      return cities.filter(city => regex.test(city.city) || regex.test(city.state));
     }
 
     function displayMatches(value) {
       const matchingCities = findMatches(value, cities);
       for(const city of matchingCities) {
         const spanCity = document.createElement('span');
-        spanCity.setAttribute('class', 'name');
+        spanCity.className = 'name';
 
         const regex = new RegExp(value, 'gi');
-        const cityName = `${city['city']}, ${city['state']}`.replace(regex, `<span class="hl">${value}</span>`);
+        const cityName = `${city.city}, ${city.state}`.replace(regex, `<span class="hl">${value}</span>`);
         spanCity.innerHTML = cityName;
 
         const spanPopulation = document.createElement('span');
-        spanPopulation.setAttribute('class', 'population');
-        spanPopulation.textContent = numberWithCommas(city['population']);
+        spanPopulation.className = 'population';
+        spanPopulation.textContent = numberWithCommas(city.population);
 
         const li = document.createElement('li');
         li.appendChild(spanCity);
@@ -54,7 +59,7 @@
     }
 
     function numberWithCommas(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return Intl.NumberFormat('en-IN').format(x);
     }
 
     input.addEventListener('input', e => {
@@ -62,19 +67,18 @@
         suggestions.removeChild(suggestions.lastChild);
       }
 
-      const value = input.value.toLowerCase();
-      const isEmpty = value.length === 0;
-      if(isEmpty) {
-        const li1 = document.createElement('li');
-        li1.textContent = 'Filter for a city';
-        suggestions.appendChild(li1);
-        const li2 = document.createElement('li');
-        li2.textContent = 'or a state';
-        suggestions.appendChild(li2);
+      const { value } = input;
+      if(value.length !== 0) {
+        displayMatches(value.toLowerCase());
         return;
       }
 
-      displayMatches(value);
+      const li1 = document.createElement('li');
+      li1.textContent = 'Filter for a city';
+      suggestions.appendChild(li1);
+      const li2 = document.createElement('li');
+      li2.textContent = 'or a state';
+      suggestions.appendChild(li2);
     });
   </script>
 </body>
