@@ -20,31 +20,34 @@
 
     async function fetchData(endpoint) {
       const res = await fetch(endpoint);
-      const arr = await res.json();
+      if(!res.ok) throw new Error('Unable to fetch data.');
+      return await res.json();
+    }
+
+    async function storeCities(arr) {
       cities.push(...arr);
     }
 
     const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
     fetchData(endpoint)
-      .catch(err => console.log(err.message));
+      .then(storeCities)
+      .catch(console.error);
 
     const input = document.querySelector('.search');
     const suggestions = document.querySelector('.suggestions');
 
-    function findMatches(word, cities) {
-      const regex = new RegExp(word, 'gi');
-      return cities.filter(city => regex.test(city.city) || regex.test(city.state));
+    function escapeRegex(string) {
+      return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     }
 
-    function displayMatches(value) {
-      const matchingCities = findMatches(value, cities);
-      for(const city of matchingCities) {
-        const spanCity = document.createElement('span');
-        spanCity.className = 'name';
+    function displayMatches(allCities, value) {
+      for(const city of allCities) {
+        const regex = new RegExp(escapeRegex(value), 'gi');
+        if(!regex.test(city.city) && !regex.test(city.state))
+          continue;
 
-        const regex = new RegExp(value, 'gi');
-        const cityName = `${city.city}, ${city.state}`.replace(regex, `<span class="hl">${value}</span>`);
-        spanCity.innerHTML = cityName;
+        const spanCity = document.createElement('span');
+        spanCity.innerHTML = `${city.city}, ${city.state}`.replace(regex, `<span class="hl">${value}</span>`);
 
         const spanPopulation = document.createElement('span');
         spanPopulation.className = 'population';
@@ -63,13 +66,11 @@
     }
 
     input.addEventListener('input', e => {
-      while(suggestions.lastChild) {
-        suggestions.removeChild(suggestions.lastChild);
-      }
+      suggestions.textContent = '';
 
       const { value } = input;
       if(value.length !== 0) {
-        displayMatches(value.toLowerCase());
+        displayMatches(cities, value.toLowerCase());
         return;
       }
 
