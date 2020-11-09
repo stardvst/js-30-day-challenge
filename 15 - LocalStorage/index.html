@@ -38,6 +38,11 @@
       <label for="item"></label>
       <input type="text" id="item" name="item" placeholder="Item Name" required>
       <button type="submit">+ Add Item</button>
+      <div id="apply-all-buttons">
+        <button type="button" id="clear-all">Clear All</button>
+        <button type="button" id="check-all">Check All</button>
+        <button type="button" id="uncheck-all">Uncheck All</button>
+      </div>
     </form>
   </div>
 
@@ -45,6 +50,7 @@
     const addItems = document.querySelector('.add-items');
     const itemsList = document.querySelector('.plates');
     const items = JSON.parse(localStorage.getItem('items')) || [];
+    const applyAllButtons = document.getElementById('apply-all-buttons');
 
     function addItem(e) {
       e.preventDefault();
@@ -52,18 +58,18 @@
       items.push({ name, checked: false });
       this.reset();
 
-      populateList(items, itemsList);
+      populateList(itemsList, items);
       localStorage.setItem('items', JSON.stringify(items));
     }
 
-    function populateList(items = [], itemsList) {
+    function populateList(itemsList, items = []) {
       itemsList.textContent = '';
       if(items.length === 0) {
         const li = document.createElement('li');
         li.textContent = 'Loading Tapas...';
         itemsList.appendChild(li);
         return;
-      };
+      }
 
       items.map((item, idx) => {
         const input = document.createElement('input');
@@ -82,6 +88,12 @@
       });
     }
 
+    function setItemsChecked(itemList, checked = true) {
+      for(const item of itemList) {
+        item.checked = checked;
+      }
+    }
+
     addItems.addEventListener('submit', addItem);
 
     itemsList.addEventListener('click', e => {
@@ -91,10 +103,23 @@
       const item = items[input.dataset.index];
       item.checked = !item.checked;
       localStorage.setItem('items', JSON.stringify(items));
-      populateList(items, itemsList);
+      populateList(itemsList, items);
     });
 
-    populateList(items, itemsList);
+    applyAllButtons.addEventListener('click', e => {
+      if(e.target.closest('#clear-all')) {
+        items.length = 0;
+      } else if(e.target.closest('#check-all')) {
+        setItemsChecked(items);
+      } else if(e.target.closest('#uncheck-all')) {
+        setItemsChecked(items, false);
+      }
+
+      localStorage.setItem('items', JSON.stringify(items));
+      populateList(itemsList, items);
+    });
+
+    populateList(itemsList, items);
   </script>
 </body>
 </html>
