@@ -61,12 +61,12 @@ h2 {
   display: none;
 }
 
-.plates input + label:before {
+.plates input+label:before {
   content: "⬜️";
   margin-right: 10px;
 }
 
-.plates input:checked + label:before {
+.plates input:checked+label:before {
   content: "🌮";
 }
 
@@ -74,7 +74,7 @@ h2 {
   margin-top: 20px;
 }
 
-#apply-all-buttons button,
+#input-fields button,
 .add-items input,
 .add-items button {
   padding: 10px;
@@ -82,15 +82,18 @@ h2 {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-#apply-all-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 5px;
-  /*gap: 5px;*/
+#input-fields button,
+.add-items button {
+  cursor: pointer;
 }
 
-#apply-all-buttons button {
-  flex: 1;
-  width: fit-content;
-  cursor: pointer;
+#input-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 5px;
+  gap: 5px;
+}
+
+#input-fields input {
+  grid-column: 1 / 3;
 }

@@ -35,10 +35,10 @@
       <li>Loading Tapas...</li>
     </ul>
     <form class="add-items">
-      <label for="item"></label>
-      <input type="text" id="item" name="item" placeholder="Item Name" required>
-      <button type="submit">+ Add Item</button>
-      <div id="apply-all-buttons">
+      <div id="input-fields">
+        <label for="item"></label>
+        <input type="text" id="item" name="item" placeholder="Item Name" required>
+        <button type="submit">+ Add Item</button>
         <button type="button" id="clear-all">Clear All</button>
         <button type="button" id="check-all">Check All</button>
         <button type="button" id="uncheck-all">Uncheck All</button>
@@ -50,7 +50,7 @@
     const addItems = document.querySelector('.add-items');
     const itemsList = document.querySelector('.plates');
     const items = JSON.parse(localStorage.getItem('items')) || [];
-    const applyAllButtons = document.getElementById('apply-all-buttons');
+    const applyAllButtons = document.getElementById('input-fields');
 
     function addItem(e) {
       e.preventDefault();
