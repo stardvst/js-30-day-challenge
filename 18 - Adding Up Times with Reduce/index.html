@@ -184,38 +184,23 @@
 
   <script>
     function secondsToHourMinSec(seconds) {
-      let hours = Math.floor(seconds / 3600);
-      seconds %= 3600;
-      if(hours < 10) hours = '0' + hours;
-
-      let minutes = Math.floor(seconds / 60);
-      if(minutes < 10) minutes = '0' + minutes;
-      seconds %= 60;
-
-      if(seconds < 10) seconds = '0' + seconds;
-      return [hours, minutes, seconds];
+      const date = new Date(0);
+      date.setSeconds(seconds);
+      return date.toISOString().substr(11, 8);
     }
 
-    // map & reduce
-    const videos = [...document.querySelectorAll('[data-time]')]; //[...document.querySelectorAll('li')];
-    const times = videos
-      .map(video => video.dataset.time)
-      .map(time => {
-        const [m, s] = time.split(':').map(parseFloat);
-        return m * 60 + s;
-      })
-      .reduce((times, time) => times + time);
+    const parseVideoSeconds = time => {
+      const [m, s] = time.split(':').map(parseFloat);
+      videoSeconds.push(s + 60 * m);
+    };
 
-    const [h1, m1, s1] = secondsToHourMinSec(times);
-    console.log(`${h1}:${m1}:${s1}`);
+    const sumSeconds = seconds => seconds.reduce((totalSeconds, seconds) => totalSeconds + seconds);
 
-    // reduce
-    const totalReduce = videos.reduce((totalReduce, video) => {
-      const [m, s] = video.dataset.time.split(':').map(parseFloat);
-      return totalReduce + s + 60 * m;
-    }, 0);
-    const [h2, m2, s2] = secondsToHourMinSec(totalReduce);
-    console.log(`${h2}:${m2}:${s2}`);
+    const videoSeconds = [];
+    const videos = [...document.querySelectorAll('[data-time]')];
+    videos.map(video => parseVideoSeconds(video.dataset.time));
+
+    console.log(secondsToHourMinSec(sumSeconds(videoSeconds)));
   </script>
 </body>
 </html>
